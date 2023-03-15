@@ -189,7 +189,8 @@ modal.addEventListener("click", e => {
     fetch("http://localhost:8080/ca1backend/api/person/hobby/all", {})
         .then(response => response.json())
         .then(data => {
-            let hobbies = data.map(el => `<li> <label> <input id=${el.id} type="checkbox" value=${el.id} name="city" />${el.name}</label></li>`)
+            let hobbies = data.map(el => `<li> <label> <input id=${el.id} type="checkbox" value="${el.name}" name="hobby" />${el.name}</label></li>`)
+
             const personString = hobbies.join(" ")
             console.log(personString)
             document.querySelector("#hobbyDrop").innerHTML = personString
@@ -199,15 +200,17 @@ modal.addEventListener("click", e => {
         $(this).toggleClass("is-active");
     });
 
-    $(".checkbox-dropdown ul").click(function(e) {
+    $(".checkbox-dropdown ul").click(function (e) {
         e.stopPropagation();
     });
-
 })
 
 const createUser = document.querySelector("#createUser")
 
 createUser.addEventListener("click", e => {
+    let hobbyDTOS = getHobbyByName();
+    console.log(hobbyDTOS);
+    console.log(typeof hobbyDTOS)
     let options = {
         method: "POST",
         headers: {
@@ -215,18 +218,23 @@ createUser.addEventListener("click", e => {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            createFirstName: document.querySelector("#createFirstName").value,
-            createLastName: document.querySelector("#createLastName").value,
-            createStreet: document.querySelector("#createPhone").value,
-            createAdditionalInfo: document.querySelector("#createAdditionalInfo").value,
-            createZip: document.querySelector("#createZip").value,
-            createPhone: document.querySelector("#createPhone").value,
-
-
+            firstName: document.querySelector("#createFirstName").value,
+            lastName: document.querySelector("#createLastName").value,
+            addressDTO: {
+                street: document.querySelector("#createPhone").value,
+                additionalInfo: document.querySelector("#createAdditionalInfo").value,
+                zipCode: document.querySelector("#createZip").value
+            },
+            phoneDTOS: [{
+                number: document.querySelector("#createPhone").value,
+                description: document.querySelector("#createPhoneDescription").value
+            }],
+            hobbyDTOS
         })
+
     }
-    console.log(options)
-    fetch("http://localhost:8080/ca1backend/api/person/home", options)
+    console.log(options.body)
+    fetch("http://localhost:8080/ca1backend/api/person", options)
     location.reload()
 })
 
@@ -237,22 +245,6 @@ table.addEventListener("click", e => {
     let id = e.target.id;
     if (e.target.className === "btnedit btn btn-link") {
 
-        // console.log("here")
-        // let options = {
-        //     method: "PUT",
-        //     headers: {
-        //         'Accept': 'application/json',
-        //         'Content-Type': 'application/json'
-        //     },
-        //     body: JSON.stringify({
-        //         firstName: document.querySelector("#newFirstName").value,
-        //         lastName: document.querySelector("#newLastName").value,
-        //         phone: document.querySelector("#newPhone").value
-        //     })
-        // }
-        // console.log(e.target.id)
-        // fetch(`http://localhost:8080/rest_start/api/person/${e.target.id}`, options);
-        // location.reload()
         const editButton = document.querySelector("#editUser")
 
         editButton.addEventListener("click", e => {
@@ -269,7 +261,6 @@ table.addEventListener("click", e => {
                     email: document.querySelector("#newEmail").value
                 })
             }
-            console.log(e.target.id)
             fetch(`http://localhost:8080/ca1backend/api/person/edit/${id}`, options);
             location.reload()
         })
@@ -277,4 +268,42 @@ table.addEventListener("click", e => {
     }
 
 })
+
+
+// document.getElementById('submit').addEventListener('click', getData); //add a click event to the save button
+
+
+
+function getData() { // this function will get called when the save button is clicked
+    let result = [];
+    let itemForm = document.querySelector("#createUserDiv"); // getting the parent container of all the checkbox inputs
+    let checkBoxes = itemForm.querySelectorAll('input[type="checkbox"]'); // get all the checkbox
+    result = [];
+    checkBoxes.forEach(item => { // loop all the checkbox item
+        if (item.checked) {  //if the checkbox is checked
+            let data = item.value
+
+            result.push(data); //stored the objects to result array
+        }
+    })
+    return result; // display result
+}
+
+
+function getHobbyByName(handler) {
+
+    let hobbies = getData();
+    console.log(hobbies)
+    hobbies.forEach(hobby => {
+         return fetch(`http://localhost:8080/ca1backend/api/person/hobby/name/${hobby}`)
+            .then(response => response.json())
+            .then(data => {
+                let res = [];
+                console.log("here it should be good in json - siuuu")
+                console.log(data)
+                res.push(data)
+            })
+            .catch(err => console.log(err))
+    })
+}
 
