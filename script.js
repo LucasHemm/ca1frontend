@@ -291,7 +291,7 @@ function getData() { // this function will get called when the save button is cl
 }
 
 
-function getHobbyByName(handler) {
+function getHobbyByName() {
 
     let hobbies = getData();
     console.log(hobbies)
