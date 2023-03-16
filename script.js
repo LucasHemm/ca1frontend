@@ -220,8 +220,9 @@ createUser.addEventListener("click", e => {
         body: JSON.stringify({
             firstName: document.querySelector("#createFirstName").value,
             lastName: document.querySelector("#createLastName").value,
+            email: document.querySelector("#createEmail").value,
             addressDTO: {
-                street: document.querySelector("#createPhone").value,
+                street: document.querySelector("#createStreet").value,
                 additionalInfo: document.querySelector("#createAdditionalInfo").value,
                 zipCode: document.querySelector("#createZip").value
             },
@@ -229,7 +230,7 @@ createUser.addEventListener("click", e => {
                 number: document.querySelector("#createPhone").value,
                 description: document.querySelector("#createPhoneDescription").value
             }],
-            hobbyDTOS
+            hobbyDTOS: []
         })
 
     }
