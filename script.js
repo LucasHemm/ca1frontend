@@ -208,35 +208,48 @@ modal.addEventListener("click", e => {
 const createUser = document.querySelector("#createUser")
 
 createUser.addEventListener("click", e => {
-    let hobbyDTOS = getHobbyByName();
-    console.log(hobbyDTOS);
-    console.log(typeof hobbyDTOS)
-    let options = {
-        method: "POST",
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            firstName: document.querySelector("#createFirstName").value,
-            lastName: document.querySelector("#createLastName").value,
-            addressDTO: {
-                street: document.querySelector("#createPhone").value,
-                additionalInfo: document.querySelector("#createAdditionalInfo").value,
-                zipCode: document.querySelector("#createZip").value
-            },
-            phoneDTOS: [{
-                number: document.querySelector("#createPhone").value,
-                description: document.querySelector("#createPhoneDescription").value
-            }],
-            hobbyDTOS
-        })
+    let dataArray = [];
 
-    }
-    console.log(options.body)
-    fetch("http://localhost:8080/ca1backend/api/person", options)
-    location.reload()
-})
+    getHobbyByName()
+        .then(data => {
+            dataArray.push(...data);
+        })
+        .catch(err => {
+            console.log(err);
+        })
+        .finally(() => {
+            let options = {
+                method: "POST",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    firstName: document.querySelector("#createFirstName").value,
+                    lastName: document.querySelector("#createLastName").value,
+                    email: document.querySelector("#createEmail").value,
+                    addressDTO: {
+                        street: document.querySelector("#createStreet").value,
+                        additionalInfo: document.querySelector("#createAdditionalInfo").value,
+                        zipCode: document.querySelector("#createZip").value
+                    },
+                    phoneDTOS: [{
+                        number: document.querySelector("#createPhone").value,
+                        description: document.querySelector("#createPhoneDescription").value
+                    }],
+                    hobbyDTOS: dataArray
+                })
+            };
+
+            console.log(options.body);
+            fetch("http://localhost:8080/ca1backend/api/person", options)
+                .then(response => {
+                    console.log("User created successfully.");
+                    location.reload();
+                })
+                .catch(error => console.error(error));
+        });
+});
 
 const table = document.querySelector("#table");
 
@@ -290,20 +303,12 @@ function getData() { // this function will get called when the save button is cl
 }
 
 
-function getHobbyByName(handler) {
-
+function getHobbyByName() {
     let hobbies = getData();
-    console.log(hobbies)
-    hobbies.forEach(hobby => {
-         return fetch(`http://localhost:8080/ca1backend/api/person/hobby/name/${hobby}`)
+    let promises = hobbies.map(hobby => {
+        return fetch(`http://localhost:8080/ca1backend/api/person/hobby/name/${hobby}`)
             .then(response => response.json())
-            .then(data => {
-                let res = [];
-                console.log("here it should be good in json - siuuu")
-                console.log(data)
-                res.push(data)
-            })
-            .catch(err => console.log(err))
-    })
+    });
+    return Promise.all(promises);
 }
 
