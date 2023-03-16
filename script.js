@@ -304,6 +304,7 @@ function getData() { // this function will get called when the save button is cl
 
 
 function getHobbyByName() {
+
     let hobbies = getData();
     let promises = hobbies.map(hobby => {
         return fetch(`http://localhost:8080/ca1backend/api/person/hobby/name/${hobby}`)
